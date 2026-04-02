@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Галерея художников</title>
+
+    <style>
+      .hero {
+        height: 60vh;
+        background: url("https://sun9-33.userapi.com/s/v1/ig1/lor-ddlPV94Izx8EaQac_AyxJ33C0ZAnWPraD0KmZcQvjuTVBFqZdc8kspmSIZYvE4i9zbiU.jpg?quality=96&as=32x23,48x34,72x52,108x77,160x115,240x172,360x258,480x344,540x387,600x430&from=bu&u=CTHrBSgjfM1TIVmxJ3F1SHpEqPJIX6Ydz9msFu63S2g&cs=600x0")
+          center/cover no-repeat;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
+
+      /* затемнение */
+      .hero::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+      }
+
+      /* текст */
+      .hero-content {
+        position: relative;
+        text-align: center;
+        padding: 20px;
+        color: rgb(255, 255, 255);
+      }
+
+      .hero h1 {
+        font-size: 32px;
+        max-width: 800px;
+        line-height: 1.4;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: white;
+      }
+
+      #artists {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 30px;
+      }
+
+      .artist {
+        background: #1e1e1e;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .artist:hover {
+        background: #2a2a2a;
+      }
+
+      #gallery {
+        display: none;
+        padding: 30px;
+      }
+
+      .back {
+        margin-bottom: 20px;
+        cursor: pointer;
+        color: #aaa;
+      }
+
+      .paintings {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .paintings img {
+        width: 100%;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      #modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      #modal img {
+        max-width: 80%;
+        max-height: 70%;
+      }
+
+      #modal p {
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="hero">
+      <div class="hero-content">
+        <h1>История Беларуси в европейской живописи XIX века</h1>
+      </div>
+    </div>
+    <div id="artists"></div>
+
+    <div id="gallery">
+      <div class="back" onclick="back()">← Назад</div>
+      <h2 id="title"></h2>
+      <div class="paintings" id="paintings"></div>
+    </div>
+
+    <div id="modal" onclick="closeModal()">
+      <img id="modalImg" />
+      <p id="modalText"></p>
+    </div>
+
+    <script>
+      /*
+📌 КАК РЕДАКТИРОВАТЬ:
+- name = название картины
+- img = ссылка на картинку
+👉 просто заменяешь img на свою ссылку
+*/
+
+      const artists = [
+        {
+          name: "Бялыницкий-Бируля Витольд",
+          paintings: [
+            {
+              name: "Осенний пейзаж",
+              img: "https://static.tildacdn.biz/tild6565-3266-4335-a139-363830383738/1679847811_papik-pro.jpg",
+              // 🔁 ЗАМЕНИ ССЫЛКУ ЗДЕСЬ
+            },
+            {
+              name: "Март",
+              img: "https://upload.wikimedia.org/wikipedia/commons/0/03/Бялыницкий-Бируля_Март._1913.jpg",
+            },
+          ],
+        },
+
+        {
+          name: "Горавский Аполлинарий",
+          paintings: [
+            {
+              name: "Деревенский пейзаж",
+              img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Appolinary_Goravsky._Country_landscape.jpg/1280px-Appolinary_Goravsky._Country_landscape.jpg",
+            },
+          ],
+        },
+
+        {
+          name: "Айдукевич Тадеуш",
+          paintings: [
+            {
+              name: "Сцена восстания",
+              img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Tadeusz_Ajdukiewicz%2C_scène_de_l%27insurrection_de_1863.jpg/1280px-Tadeusz_Ajdukiewicz%2C_scène_de_l%27insurrection_de_1863.jpg",
+            },
+          ],
+        },
+
+        {
+          name: "Иванов Сергей",
+          paintings: [
+            {
+              name: "Бунт в деревне",
+              img: "https://upload.wikimedia.org/wikipedia/commons/4/4a/S._V._Ivanov._Unrest_in_a_village_%281889%29.jpg",
+            },
+          ],
+        },
+
+        {
+          name: "Рущиц Фердинанд",
+          paintings: [
+            {
+              name: "Мельница зимой",
+              img: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Mlyn_zima_1.jpg",
+            },
+          ],
+        },
+
+        {
+          name: "Коссак Войцех",
+          paintings: [
+            {
+              name: "Битва при Грюнвальде",
+              img: "https://sun9-33.userapi.com/s/v1/ig1/lor-ddlPV94Izx8EaQac_AyxJ33C0ZAnWPraD0KmZcQvjuTVBFqZdc8kspmSIZYvE4i9zbiU.jpg?quality=96&as=32x23,48x34,72x52,108x77,160x115,240x172,360x258,480x344,540x387,600x430&from=bu&u=CTHrBSgjfM1TIVmxJ3F1SHpEqPJIX6Ydz9msFu63S2g&cs=600x0",
+            },
+          ],
+        },
+
+        {
+          name: "Коссак Юлиуш",
+          paintings: [
+            {
+              name: "Собеский под Веной",
+              img: "https://upload.wikimedia.org/wikipedia/commons/0/02/Juliusz_Kossak_Sobieski_pod_Wiedniem.jpeg",
+            },
+          ],
+        },
+
+        {
+          name: "Гроттгер Артур",
+          paintings: [
+            {
+              name: "Последнее предостережение",
+              img: "https://upload.wikimedia.org/wikipedia/commons/2/23/Artur_Grottger_-_Ostatnia_przestroga.jpg",
+            },
+          ],
+        },
+      ];
+
+      // --- ЛОГИКА (не трогай, если не уверен) ---
+
+      const artistsDiv = document.getElementById("artists");
+      const gallery = document.getElementById("gallery");
+      const paintingsDiv = document.getElementById("paintings");
+      const title = document.getElementById("title");
+
+      artists.forEach((a, i) => {
+        const div = document.createElement("div");
+        div.className = "artist";
+        div.innerText = a.name;
+        div.onclick = () => openArtist(i);
+        artistsDiv.appendChild(div);
+      });
+
+      function openArtist(i) {
+        artistsDiv.style.display = "none";
+        gallery.style.display = "block";
+
+        title.innerText = artists[i].name;
+        paintingsDiv.innerHTML = "";
+
+        artists[i].paintings.forEach((p) => {
+          const img = document.createElement("img");
+
+          img.src = p.img;
+
+          img.onclick = () => show(p.name, p.img);
+
+          paintingsDiv.appendChild(img);
+        });
+      }
+
+      function back() {
+        gallery.style.display = "none";
+        artistsDiv.style.display = "grid";
+      }
+
+      function show(text, src) {
+        document.getElementById("modal").style.display = "flex";
+        document.getElementById("modalImg").src = src;
+        document.getElementById("modalText").innerText = text;
+      }
+
+      function closeModal() {
+        document.getElementById("modal").style.display = "none";
+      }
+    </script>
+  </body>
+</html>
